@@ -13,6 +13,10 @@ const jConfig = require('./serverConfig.json');
 //console.log(blockChain.proofOfWork(previousBlockHash, currentBlockData));
 
 
+const database = require('./DB/index.js');
+// DB 연결
+database.init();
+
 // CORS 설정 cross 문제 해결 ajax
 app.use(cors({
 	origin: '*',
@@ -31,8 +35,7 @@ http.listen(jConfig.port, function(){
 
 app.use('/blockchain', require('./Router/BlockChain'));
 app.use('/wallet', require('./Router/Wallet'));
-app.use('/otp', require('./Router/OTP'));
-app.use('/phone', require('./Router/Phone'));
+app.use('/auth', require('./Router/Auth'));
 
 
 // css, js, img 정적파일

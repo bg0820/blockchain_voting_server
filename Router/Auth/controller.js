@@ -1,5 +1,7 @@
 const mapper = require('../../DB/mapperController.js');
 const axios = require('axios');
+const wallet = require('../../Model/Wallet');
+
 
 function makeKey() {
 	var text = "";
@@ -97,7 +99,7 @@ exports.authOtp = function(req, res) {
 }
 
 exports.authPhone = function(req, res) {
-	const {phone, key} = req.query;
+	const {id, phone, phoneIMEI,  key} = req.query;
 
 	if(!phone || !key)
 	{
@@ -106,9 +108,22 @@ exports.authPhone = function(req, res) {
 	}
 
 	mapper.auth.authPhone(phone, key).then(function(result) {
+		if(result) {
+			return mapper.auth.deleteAuth(phone, key);
+		} else {
+			throw -1;
+		}
+	}).then(function() {
+		let walletAddr = wallet.createWallet(phoneIMEI, 0);
+
+		return mapper.auth.createUser(id, phone, phoneIMEI, walletAddr);
+	}).then(function() {
 		res.send({ result: 'success', msg: ''});
 	}).catch(function(error) {
-		res.send({ result: 'error', msg: '', error: JSON.stringify(error)});
+		if(error == -1) 
+			res.send({ result: 'failed', msg: '일치하지 않습니다.'});
+		else
+			res.send({ result: 'error', msg: '', error: JSON.stringify(error)});
 	})
 }
 

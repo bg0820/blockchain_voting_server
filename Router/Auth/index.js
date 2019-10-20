@@ -11,4 +11,5 @@ router.get('/phone', controller.sendPhone);
 router.get('/phone/auth', controller.authPhone);
 router.get('/phone/resend', controller.reSend);
 
+
 module.exports = router;

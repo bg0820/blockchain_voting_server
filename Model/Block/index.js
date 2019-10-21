@@ -14,7 +14,7 @@ class Block {
 	calcHash() {
 		const dataAsString =  this.index + this.prevBlockHash + this.timeStamp +  JSON.stringify(this.data);
 		const hash = sha256(dataAsString);
-
+		
 		return hash;
 	}
 }

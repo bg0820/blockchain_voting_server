@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko-kr">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="initial-scale=1, width=device-width" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/ko.js"></script>
+	<script src="https://code.jquery.com/jquery-3.4.1.js"
+		integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+	<script src="./index.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+	<div class="sector">
+		<p class="item_title">이미지 업로드</p>
+		<input type="file" id="imgFile" name="imgFile">
+		<input type="button" id="imgUpload" value="업로드">
+		<p id="img_upload_result"></p>
+	</div>
+
+	<div class="sector">
+		<p class="item_title">투표 등록</p>
+		<input type="text" id="vote_name" placeholder="투표 이름">
+		<input type="number" id="vote_voteType" placeholder="0 = 선거, 1 = 투표" value="1">
+		<input type="datetime-local" id="vote_start_date">~
+		<input type="datetime-local" id="vote_end_date">
+
+		<input type="button" id="vote_enroll" value="투표 등록">
+		<p id="vote_enroll_result"></p>
+	</div>
+
+	<div class="sector">
+		<p class="item_title">후보 그룹 등록</p>
+		<input type="number" id="candidate_group_voteIdx" placeholder="투표 고유 아이디">
+		<input type="number" id="candidate_group_num" placeholder="기호">
+		<input type="text" id="candidate_group_name" placeholder="후보 그룹 이름">
+		<textarea id="candidate_group_commit" placeholder="공약"></textarea>
+
+		<input type="button" id="candidate_group_enroll" value="후보 그룹 등록">
+
+		<p id="candidate_group_enroll_result"></p>
+	</div>
+
+	<div class="sector">
+		<p class="item_title">입후보자 등록</p>
+		<input type="number" id="candidate_groupIdx" placeholder="후보 그룹 고유 아이디">
+		<input type="number" id="candidate_id" placeholder="후보 학번">
+		<input type="text" id="candidate_name" placeholder="후보 이름">
+		<select id="candidate_departmentName" value="학과를 선택하세요">
+			<option value="글로컬IT학과">글로컬IT학과</option>
+			<option value="소프트웨어공학과">소프트웨어공학과</option>
+			<option value="컴퓨터공학과">컴퓨터공학과</option>
+			<option value="정보통신공학과">정보통신공학과</option>
+			<option value="사회복지학과">사회복지학과</option>
+			<option value="사회과학부">사회과학부</option>
+			<option value="신문방송학과">신문방송학과</option>
+			<option value="경영학부">경영학부</option>
+			<option value="영어학과">영어학과</option>
+			<option value="일어일본학과">일어일본학과</option>
+			<option value="디지털컨텐츠학과">디지털컨텐츠학과</option>
+			<option value="신학과">신학과</option>
+			<option value="IT융합자율학부">IT융합자율학부</option>
+			<option value="사회융합자율학부">사회융합자율학부</option>
+			<option value="미디어컨텐츠융합자율학부">미디어컨텐츠융합자율학부</option>
+			<option value="인문융합자율학부">인문융합자율학부</option>
+		</select>
+		<select id="candidate_position" value="직위를 선택해주세요.">
+			<option value="1">정 학생회장</option>
+			<option value="2">부 학생회장</option>
+		</select>
+		<input type="text" id="candidate_profileImg" placeholder="프로필 사진 주소">
+		<textarea id="candidate_career" placeholder="경력"></textarea>
+
+		<input type="button" id="candidate_enroll" value="입후보자 등록">
+		<p id="candidate_enroll_result"></p>
+	</div>
+
+</body>
+
+</html>

@@ -1,3 +1,5 @@
+var port = process.argv[2];
+
 // main Require
 const express = require('express');
 const app = express();
@@ -9,6 +11,7 @@ const cors = require('cors');
 // User Require
 const jConfig = require('./serverConfig.json');
 
+const BlockChain = require('./Model/BlockChain');
 
 //console.log(blockChain.proofOfWork(previousBlockHash, currentBlockData));
 
@@ -29,14 +32,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
-http.listen(jConfig.port, function(){
-    console.log('listening on http://' + jConfig.host + ':' + jConfig.port);
+http.listen(port, function(){
+    console.log('listening on http://' + jConfig.host + ':' + port);
 });
 
 app.use('/blockchain', require('./Router/BlockChain'));
 app.use('/wallet', require('./Router/Wallet'));
 app.use('/auth', require('./Router/Auth'));
+app.use('/', require('./Router/Main'));
 
 
 // css, js, img 정적파일
-app.use('/', express.static('public'));
+app.use('/img', express.static('Image'));
+app.use('/page', express.static('public'));

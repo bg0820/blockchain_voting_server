@@ -1,6 +1,8 @@
 const mapper = require('../../DB/mapperController.js');
 const axios = require('axios');
 const wallet = require('../../Model/Wallet');
+const jwt      = require('jsonwebtoken');
+const jConfig = require('../../serverConfig.json');
 
 
 function makeKey() {
@@ -101,25 +103,36 @@ exports.authOtp = function(req, res) {
 exports.authPhone = function(req, res) {
 	const {id, phone, phoneIMEI,  key} = req.query;
 
-	if(!phone || !key)
+	if(!id || !phone || !phoneIMEI || !key)
 	{
 		res.send({ result: 'failed', msg: '입력되지 않은 항목이 있습니다.'});
 		return false;
 	}
 
-	mapper.auth.authPhone(phone, key).then(function(result) {
-		if(result) {
-			return mapper.auth.deleteAuth(phone, key);
-		} else {
-			throw -1;
-		}
-	}).then(function() {
-		let walletAddr = wallet.createWallet(phoneIMEI, 0);
+	let walletAddr = wallet.createWallet(id, phoneIMEI, 0);
 
-		return mapper.auth.createUser(id, phone, phoneIMEI, walletAddr);
-	}).then(function() {
-		res.send({ result: 'success', msg: ''});
+	mapper.auth.authPhone(id, phone, key, phoneIMEI, walletAddr).then(function(result) {
+		console.log(result);
+
+		var payload = {
+			idx: result.insertId,
+			id: id,
+			phone: phone,
+			phoneIMEI: phoneIMEI,
+			walletAddr: walletAddr
+		};
+		var secretKey = jConfig.secret;
+		var options = {
+			algorithm : 'HS256',
+			issuer: id,
+			subject: 'accountInfo'
+		};
+	
+		let jwtToken = jwt.sign(payload, secretKey, options);
+
+		res.send({ result: 'success', msg: '', token: jwtToken, walletAddr: walletAddr});
 	}).catch(function(error) {
+		console.log(error);
 		if(error == -1) 
 			res.send({ result: 'failed', msg: '일치하지 않습니다.'});
 		else
@@ -138,6 +151,23 @@ exports.reSend = function(req, res) {
 	}
 
 	mapper.auth.reSend(phone, key).then(function(result) {
+		let opts = {
+			"body": "[SKHVOTE]본인확인 인증번호[" + key + "]입니다. \"타인 노출 금지\"",
+			"sendNo": "01092919215",
+			"recipientList":[
+			   {
+				  "recipientNo": phone,
+				  "countryCode": "82",
+				  "internationalRecipientNo": "82" + phone.substring(1, phone.length)
+			   }
+			]
+		};
+
+		return axios({
+			method: 'POST',
+			url: 'https://api-sms.cloud.toast.com/sms/v2.2/appKeys/pGyIXRgcnQpHsLcf/sender/sms',
+			data: opts});
+	}).then(function(result) {
 		res.send({ result: 'success', msg: ''});
 	}).catch(function(error) {
 		res.send({ result: 'error', msg: '', error: JSON.stringify(error)});

@@ -1,6 +1,6 @@
 const hashmap = require('hashmap');
-var walletAddress = new hashmap();
-var walletPw = new hashmap();
+var walletAddressHt = new hashmap();
+var walletPwHt = new hashmap();
 const sha256 = require('sha256');
 
 function makeKey() {
@@ -13,56 +13,79 @@ function makeKey() {
     return text;
 }
 
-function checkAmount(key) {
-	if(!walletAddress.has(key))
+function checkAmount(walletAddr) {
+	if(!walletAddressHt.has(walletAddr))
 		return -1;
 
-	let amount = walletAddress.get(key);
+	let amount = walletAddressHt.get(walletAddr);
+
 	return amount.amount;
 }
 
-function createWallet(key, amount) {
-	let randomVal = makeKey();
+function createCandidateWallet(voteIdx, num, name) {
+	let pw = sha256(voteIdx + 'as124dg2' + name);
+	let walletAddress = sha256(voteIdx + num + name);
 
-	let hash = sha256(key + randomVal);
-	walletPw.set(hash, key);
-	walletAddress.set(hash, {
-		amount: amount
+	walletPwHt.set(walletAddress, pw);
+	walletAddressHt.set(walletAddress, {
+		voteIdx: voteIdx,
+		amount: 0
 	});
 
-	return hash;
+	return walletAddress;
+}
+
+function createWallet(stduentNumber, imei, amount) {
+	let pw = sha256(imei + 'asd23');
+	let walletAddress = sha256(stduentNumber + imei);
+
+	walletPwHt.set(walletAddress, pw);
+	walletAddressHt.set(walletAddress, {
+		amount: Number(amount)
+	});
+
+	return walletAddress;
 }
 
 // 송금
-function remittance(key, sender, recip, amount) {
+function remittance(imei, sender, recip, amount, voteIdx) {
+	let pw = sha256(imei + 'asd23');
+
 	// sender 지갑 주소 있는지 확인
-	if(!walletAddress.has(sender))
+	if(!walletAddressHt.has(sender))
 		return -2;
 
 	// recip 지갑 주소 있는지 확인
-	if(!walletAddress.has(recip))
+	if(!walletAddressHt.has(recip))
 		return -3;
 		
-	if(walletPw.get(sender) !== key)
+	if(walletPwHt.get(sender) !== pw)
 		return -1;
 
 
-	let senderAmount = walletAddress.get(sender);
-	let recipeAmount = walletAddress.get(recip);
+	let senderAmount = walletAddressHt.get(sender);
+	let recipeAmount = walletAddressHt.get(recip);
 
 	if(!(senderAmount.amount >= amount)) {
 		return -4;
 	}
 
+	if(recipeAmount.voteIdx !== undefined) {
+		if(recipeAmount.voteIdx !== voteIdx) {
+			return -5;
+		}
+	}
+
 	senderAmount.amount = Number(senderAmount.amount) - Number(amount);
 	recipeAmount.amount = Number(recipeAmount.amount) + Number(amount);
 
-	walletAddress.set(sender, senderAmount);
-	walletAddress.set(recip, recipeAmount);
+	walletAddressHt.set(sender, senderAmount);
+	walletAddressHt.set(recip, recipeAmount);
 
 	return 0;
 }
 
+module.exports.createCandidateWallet = createCandidateWallet;
 module.exports.createWallet = createWallet;
 module.exports.remittance = remittance;
 module.exports.checkAmount = checkAmount;

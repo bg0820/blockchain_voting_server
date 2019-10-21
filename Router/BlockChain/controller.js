@@ -1,5 +1,6 @@
 const BlockChain = require('../../Model/BlockChain');
-const blockChain = new BlockChain();
+
+
 /*
 blockChain.createNewBlock(1111,"generator","generator");
 blockChain.createNewTransaction(100, 'PACKadffaaf', '0')
@@ -11,7 +12,7 @@ blockChain.createNewBlock(3333,"generator3","generator3");
 */
 
 exports.blockChain = function(req, res) {
-	res.send(blockChain);
+	res.send(BlockChain);
 }
 
 /*
@@ -43,8 +44,8 @@ exports.mine = function(req, res) {
 }*/
 
 exports.transaction = function(req, res) {
-	const {amount, sender, recipient, senderKey} = req.query;
-	const blockIndex = blockChain.createNewTransaction(amount, sender, recipient, senderKey);
+	const {amount, sender, recipient, imei, voteIdx} = req.query;
+	const blockIndex = BlockChain.createNewTransaction(amount, sender, recipient, imei, voteIdx);
 
 	console.log(blockIndex);
 	if(blockIndex >= 0) {
@@ -68,14 +69,18 @@ exports.transaction = function(req, res) {
 			res.send({
 				msg: 'sender 투표권 부족'
 			});
+		} else if(blockIndex === -5) {
+			res.send({
+				msg: 'voteIdx 오류'
+			});
 		}
 	}
 }
 
 exports.block = function(req, res) {
-	const newBlock = blockChain.createNewBlock()
+	const newBlock = BlockChain.createNewBlock()
 
 	res.send({
-		msg: blockChain
+		msg: BlockChain
 	});
 }

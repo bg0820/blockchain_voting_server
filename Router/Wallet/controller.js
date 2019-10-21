@@ -1,19 +1,19 @@
 const wallet = require('../../Model/Wallet');
+const BlockChain = require('../../Model/BlockChain');
+
+
 
 exports.createWallet = function(req, res) {
 	const {key} = req.query;
 
-	res.send(wallet.createWallet(key, 0));
+	let address = wallet.createWallet(key, key, 0);
+
+	res.send(address);
 }
 
 exports.checkWalletAmount = function(req, res) {
 	const {walletAddress} = req.query;
 
-	let error = wallet.checkAmount(walletAddress);
-
-	if(error >= 0) {
-		res.send({msg: error + '개 남음'});
-	} else {
-		res.send({msg: '잘못된 지갑 주소'});
-	}
+	let amount =  BlockChain.getAmount(walletAddress);
+	res.send({msg: amount + '개 남음'});
 }

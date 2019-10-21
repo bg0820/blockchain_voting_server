@@ -8,7 +8,7 @@ class BlockChain {
 
 		let createBlock = this.createGenesisBlock();
 		console.log('generate key : ', 'adsbvuaeocbc3d92bceb')
-		console.log('generate walletAddress : ', wallet.createWallet('adsbvuaeocbc3d92bceb', 99999999999));
+		console.log('generate walletAddress : ', wallet.createWallet('000000000', 'adsbvuaeocbc3d92bceb', 99999999999));
 		// 제네시스 블락 생성
 		this.chain.push(createBlock);
 		//this.createNewBlock(98765, '0', '0')
@@ -43,14 +43,14 @@ class BlockChain {
 		return this.chain[this.chain.length - 1];
 	}
 
-	createNewTransaction(amount, sender, recipient, senderKey) {
+	createNewTransaction(amount, sender, recipient, imei) {
 		const newTransaction = {
-			amount: amount,
+			amount: Number(amount),
 			sender: sender,
 			recipient: recipient
 		};
 
-		let error = wallet.remittance(senderKey, sender, recipient, amount);
+		let error = wallet.remittance(imei, sender, recipient, amount);
 
 		if(error === 0) {
 			this.transaction.push(newTransaction);
@@ -88,6 +88,36 @@ class BlockChain {
 		return true;
 	}
 
+	getAmount(walletAddress) {
+		let amount = 0;
+
+		// 제네시스 블럭 제외하고 현재 검증되지 않은 블럭 제외
+		for(var i = 0; i < this.chain.length; i++) {
+			let block = this.chain[i];
+
+			//console.log('block', block);
+
+			let transactions = block.transaction;
+
+			if(transactions === undefined)
+				continue;
+
+			for(var j = 0; j < transactions.length; j++) {
+				let transaction = transactions[j];
+				//console.log(transaction);
+				if(walletAddress === transaction.sender) {
+					amount -= transaction.amount; 
+				}
+
+				if(walletAddress === transaction.recipient) {
+					amount += transaction.amount; 
+				}
+			}
+		}
+
+		return amount;
+	}
+
 	/*
 	hashBlock(prevBlockHash, currentBlockData, nonce) {
 		const dataAsString =  this.chain.length + prevBlockHash + nonce.toString() + JSON.stringify(currentBlockData);
@@ -112,5 +142,6 @@ class BlockChain {
 	
 }
 
+var blockChain = new BlockChain();
 
-module.exports = BlockChain;
+module.exports = blockChain;

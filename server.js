@@ -39,6 +39,7 @@ http.listen(port, function(){
 app.use('/blockchain', require('./Router/BlockChain'));
 app.use('/wallet', require('./Router/Wallet'));
 app.use('/auth', require('./Router/Auth'));
+app.use('/user', require('./Router/User'));
 app.use('/', require('./Router/Main'));
 
 

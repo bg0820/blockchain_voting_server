@@ -1,5 +1,7 @@
 const mapper = require('../../DB/mapperController');
 const wallet = require('../../Model/Wallet');
+const BlockChain = require('../../Model/BlockChain');
+
 
 exports.voteDetail = function(req, res) {
 	const {voteIdx} = req.query;
@@ -52,6 +54,13 @@ exports.createCandidateGroup = function(req, res) {
 
 	mapper.vote.candidateGroupCreate(Number(voteIdx), Number(num), name, commit, walletAddress).then(function(result) {
 		console.log(result);
+		
+		return mapper.vote.getVoteUsers();
+	}).then(function(result) {
+		for(var i = 0 ; i < result.length; i++) {
+			BlockChain.createNewTransaction(1, 'f985d60a2d9b5f135e8c5255483cb594917b4124787f4d3c2694e8ef51ff8f17', result[i].walletAddress, voteIdx, 'ADD');
+		}
+
 		res.send({result: 'success', msg: '', candidateGroupIdx: result.insertId, walletAddress: walletAddress});
 	}).catch(function(error) {
 		res.send({result: 'error', error: error});

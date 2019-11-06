@@ -1,16 +1,5 @@
 const BlockChain = require('../../Model/BlockChain');
 
-
-/*
-blockChain.createNewBlock(1111,"generator","generator");
-blockChain.createNewTransaction(100, 'PACKadffaaf', '0')
-blockChain.createNewBlock(2222,"generator2","generator2");
-blockChain.createNewTransaction(100, 'PACKadffaaf', '0')
-blockChain.createNewTransaction(200, 'PACKadffaaf', '0')
-blockChain.createNewTransaction(300, 'PACKadffaaf', '0')
-blockChain.createNewBlock(3333,"generator3","generator3");
-*/
-
 exports.blockChain = function(req, res) {
 	res.send(BlockChain);
 }
@@ -44,37 +33,29 @@ exports.mine = function(req, res) {
 }*/
 
 exports.transaction = function(req, res) {
-	const {amount, sender, recipient, imei, voteIdx} = req.query;
-	const blockIndex = BlockChain.createNewTransaction(amount, sender, recipient, imei, voteIdx);
+	const {amount, sender, recipient, voteIdx, voteType} = req.query;
+	const blockIndex = BlockChain.createNewTransaction(amount, sender, recipient, voteIdx, voteType);
 
 	console.log(blockIndex);
-	if(blockIndex >= 0) {
+	if(blockIndex !== null) {
 		res.send({
 			msg: blockIndex + " 블럭안으로 들어갈 예정"
 		});
 	} else {
-		if(blockIndex === -1) {
-			res.send({
-				msg: '전송키 오류'
-			});
-		} else if(blockIndex === -2) {
-			res.send({
-				msg: 'sender 오류'
-			});
-		} else if(blockIndex === -3) {
-			res.send({
-				msg: 'recip 오류'
-			});
-		} else if(blockIndex === -4) {
-			res.send({
-				msg: 'sender 투표권 부족'
-			});
-		} else if(blockIndex === -5) {
-			res.send({
-				msg: 'voteIdx 오류'
-			});
-		}
+		res.send({
+			msg: '투표권 부족'
+		});
 	}
+}
+
+exports.amount = function(req, res) {
+	const {walletAddress, voteIdx} = req.query;
+	
+	let _voteIdx = Number(voteIdx);
+	let amount = BlockChain.getAmount(walletAddress, _voteIdx);
+	res.send({
+		msg: amount + "개 남음"
+	});
 }
 
 exports.block = function(req, res) {

@@ -1,6 +1,26 @@
 const pool = require('../../index');
 
 module.exports = {
+	getVoteUsers: async function() {
+		let con;
+		try {
+			con = await pool.getConnection();
+		} catch(err) {
+			throw err;
+		}
+
+		try {
+			const query = 'SELECT * FROM user';
+			let result = await pool.query(con, query);
+			con.release();
+
+			return result;
+		} catch(err) {
+			console.log('DB Conn Error', err);
+			con.release();
+			throw err;
+		}
+	},
 	voteDetail: async function(voteIdx) {
 		let con;
 		try {
@@ -25,6 +45,7 @@ module.exports = {
 				let candidateResult = await pool.queryParam(con, candidate_query, [candidateGroup.candidateGroupIdx]);
 
 				let temp = {
+					idx: candidateGroup.candidateGroupIdx,
 					num: candidateGroup.num,
 					title: candidateGroup.name,
 					commit: candidateGroup.commit,

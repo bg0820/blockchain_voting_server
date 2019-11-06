@@ -109,17 +109,17 @@ exports.authPhone = function(req, res) {
 		return false;
 	}
 
-	let walletAddr = wallet.createWallet(id, phoneIMEI, 0);
+	let walletResult = wallet.createWallet(id, phoneIMEI);
 
-	mapper.auth.authPhone(id, phone, key, phoneIMEI, walletAddr).then(function(result) {
-		console.log(result);
+	mapper.auth.authPhone(id, phone, key, phoneIMEI, walletResult.address, walletResult.pwKey).then(function(result) {
 
 		var payload = {
 			idx: result.insertId,
 			id: id,
 			phone: phone,
 			phoneIMEI: phoneIMEI,
-			walletAddr: walletAddr
+			walletAddress: walletResult.address,
+			pwKey: walletResult.pwKey
 		};
 		var secretKey = jConfig.secret;
 		var options = {
@@ -130,7 +130,7 @@ exports.authPhone = function(req, res) {
 	
 		let jwtToken = jwt.sign(payload, secretKey, options);
 
-		res.send({ result: 'success', msg: '', token: jwtToken, walletAddr: walletAddr});
+		res.send({ result: 'success', msg: '', token: jwtToken});
 	}).catch(function(error) {
 		console.log(error);
 		if(error == -1) 

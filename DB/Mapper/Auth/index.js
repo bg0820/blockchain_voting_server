@@ -43,7 +43,7 @@ module.exports = {
 			throw err;
 		}
 	},
-	authPhone: async function(id, phoneNumber, authKey, phoneIMEI, walletAddress) {
+	authPhone: async function(id, phoneNumber, authKey, phoneIMEI, walletAddress, pwKey) {
 		let con;
 		try {
 			con = await pool.getConnection();
@@ -70,9 +70,10 @@ module.exports = {
 				await pool.queryParam(con, allDelete, [new Date(expireDate)]);
 				await pool.queryParam(con, authDelete, [phoneNumber, authKey]);
 
-				const query_user = 'INSERT INTO user (id, phoneNumber, phoneIMEI, walletAddress, regTime) values (?, ?, ?, ?, CURRENT_TIMESTAMP)';
+				const query_user = 'INSERT INTO user (id, phoneNumber, phoneIMEI, walletAddress, pwKey, regTime) values (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)';
 				
-				createResult = await pool.queryParam(con, query_user, [id, phoneNumber, phoneIMEI, walletAddress]);
+				console.log(walletAddress);
+				createResult = await pool.queryParam(con, query_user, [id, phoneNumber, phoneIMEI, walletAddress, pwKey]);
 			}
 
 			await con.commit();

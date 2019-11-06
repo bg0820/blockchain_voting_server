@@ -11,10 +11,20 @@ class Block {
 		this.hash = this.calcHash();
 	}
 
+	init(data) {
+		this.version =  1.0;
+		this.index = data.index;
+		this.prevBlockHash = data.prevBlockHash;
+		this.timeStamp = data.timeStamp
+		this.data = data.data;
+		this.transaction = data.transaction;
+		this.hash = this.calcHash();
+	}
+
 	calcHash() {
-		const dataAsString =  this.index + this.prevBlockHash + this.timeStamp +  JSON.stringify(this.data);
+		const dataAsString =  this.version + this.index + this.prevBlockHash + this.timeStamp +  JSON.stringify(this.data);
 		const hash = sha256(dataAsString);
-		
+
 		return hash;
 	}
 }

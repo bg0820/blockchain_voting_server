@@ -7,6 +7,7 @@ router.get('/info', controller.getUserInfo);*/
 
 router.get('/', controller.blockChain);
 //router.get('/mine', controller.mine);
+router.get('/amount', controller.amount);
 router.get('/block', controller.block);
 router.get('/transaction', controller.transaction);
 

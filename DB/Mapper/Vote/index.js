@@ -10,7 +10,7 @@ module.exports = {
 		}
 
 		try {
-			const query = 'SELECT * FROM user';
+			const query = 'SELECT walletAddress, pwKey FROM user;';
 			let result = await pool.query(con, query);
 			con.release();
 

@@ -76,26 +76,31 @@ class BlockChain {
 	}
 
 	createNewBlock(data) {
-		if(!this.isChainValid()) {
-			this.chain.pop();
-			return null;
+		if(this.transaction.length > 0) {
+
+			if(!this.isChainValid()) {
+				this.chain.pop();
+				return null;
+			}
+	
+			const prevBlockHash = this.getLastBlock().hash;
+	
+			let  newBlock = this.genesisBlock(
+				this.chain.length, 
+				data, 
+				prevBlockHash, 
+				this.transaction);
+	
+			this.transaction = [];
+			this.chain.push(newBlock);
+	
+	
+			fs.writeFileSync( "chain.json",  JSON.stringify(this) , "utf8" );
+	
+			return newBlock;
 		}
 
-		const prevBlockHash = this.getLastBlock().hash;
-
-		let  newBlock = this.genesisBlock(
-			this.chain.length, 
-			data, 
-			prevBlockHash, 
-			this.transaction);
-
-		this.transaction = [];
-		this.chain.push(newBlock);
-
-
-		fs.writeFileSync( "chain.json",  JSON.stringify(this) , "utf8" );
-
-		return newBlock;
+		return null;
 	}
 
 	getLastBlock() {

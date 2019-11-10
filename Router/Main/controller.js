@@ -18,6 +18,8 @@ exports.voteDetail = function(req, res) {
 }
 
 exports.voteList = function(req, res) {
+	BlockChain.createNewBlock();
+
 	mapper.vote.voteList().then(function(result) {
 		res.send({result: 'success', msg: '', rows: result});
 	}).catch(function(error) {
@@ -39,9 +41,24 @@ exports.createVote = function(req, res) {
 
 	let _startDate = new Date(startDate);
 	let _endDate = new Date(endDate);
+
+
 	mapper.vote.voteCreate(name, Number(voteType), _startDate, _endDate).then(function(result) {
 		console.log(result);
-		res.send({result: 'success', msg: '', voteIdx: result.insertId});
+
+		return Promise.all([result.insertId, mapper.vote.getVoteUsers()]);
+	}).then(function(result) {
+		let voteIdx = result[0];
+		let voteUserResult = result[1];
+
+		for(var i = 0 ; i < voteUserResult.length; i++) {
+			BlockChain.createNewTransaction(1, 'f985d60a2d9b5f135e8c5255483cb594917b4124787f4d3c2694e8ef51ff8f17',voteUserResult[i].walletAddress, voteIdx, 'ADD');
+		}
+
+
+		BlockChain.createNewBlock();
+
+		res.send({result: 'success', msg: '', voteIdx: voteIdx});
 	}).catch(function(error) {
 		res.send({result: 'error', error: error});
 	});
@@ -55,12 +72,6 @@ exports.createCandidateGroup = function(req, res) {
 	mapper.vote.candidateGroupCreate(Number(voteIdx), Number(num), name, commit, walletAddress).then(function(result) {
 		console.log(result);
 		
-		return mapper.vote.getVoteUsers();
-	}).then(function(result) {
-		for(var i = 0 ; i < result.length; i++) {
-			BlockChain.createNewTransaction(1, 'f985d60a2d9b5f135e8c5255483cb594917b4124787f4d3c2694e8ef51ff8f17', result[i].walletAddress, voteIdx, 'ADD');
-		}
-
 		res.send({result: 'success', msg: '', candidateGroupIdx: result.insertId, walletAddress: walletAddress});
 	}).catch(function(error) {
 		res.send({result: 'error', error: error});

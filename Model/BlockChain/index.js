@@ -13,23 +13,20 @@ class BlockChain {
 		} catch(error) {
 
 		}
-		if(readData === null) {
 
-			this.chain = [];
-			this.transaction = [];
+		this.chain = [];
+		this.transaction = [];
 	
-			this.currentNodeUrl = '127.0.0.1:3001';
-			this.networkNodes = [];
+		this.currentNodeUrl = '127.0.0.1:3001';
+		this.networkNodes = [];
+
+		let generateImeiKey = 'Savsn90sdvbiu@!@B98cbwea';
+		let generateWalletAddress = wallet.createWallet('000000000', generateImeiKey);
 	
-	
-			let generateImeiKey = 'Savsn90sdvbiu@!@B98cbwea';
-			let generateWalletAddress = wallet.createWallet('000000000', generateImeiKey);
-	
-			console.log('generate imei key : ', generateImeiKey);
-			console.log('generate walletAddress : ', generateWalletAddress.address);
-	
-			//this.createNewTransaction(9999999999999, '0', generateWalletAddress, generateImeiKey, -1);
-	
+		console.log('generate imei key : ', generateImeiKey);
+		console.log('generate walletAddress : ', generateWalletAddress.address);
+
+		if(readData === null) {
 			const newTransaction = {
 				amount: 9999999999999,
 				sender: '0',
@@ -41,14 +38,10 @@ class BlockChain {
 	
 			// 제네시스 블락 생성
 			this.chain.push(createBlock);
+
+			this.voteInit(generateWalletAddress.address);
 		} else {
 			readData = JSON.parse(readData);
-			
-			this.chain = [];
-			this.transaction = [];
-	
-			this.currentNodeUrl = '127.0.0.1:3001';
-			this.networkNodes = [];
 			
 			for(var i = 0 ; i < readData.chain.length; i++) {
 				let item = readData.chain[i];
@@ -67,6 +60,19 @@ class BlockChain {
 		//this.createNewBlock(98765, '0', '0')
 	}
 
+	async voteInit(generateWalletAddress) {
+		let voteIdxList = await mapper.vote.voteIdxList();
+		let userList = await mapper.vote.getVoteUsers();
+
+		for(var i = 0 ; i < voteIdxList.length; i++) {
+			for(var j = 0 ; j < userList.length; j++) {
+				this.createNewTransaction(1, generateWalletAddress, userList[j].walletAddress, voteIdxList[i].voteIdx, 'ADD');
+			}
+		}
+
+		this.createNewBlock();
+	}
+
 	createGenesisBlock(transaction) {
 		return new Block(0, 'GenesisBlock', '0', transaction);
 	}
@@ -77,12 +83,6 @@ class BlockChain {
 
 	createNewBlock(data) {
 		if(this.transaction.length > 0) {
-
-			if(!this.isChainValid()) {
-				this.chain.pop();
-				return null;
-			}
-	
 			const prevBlockHash = this.getLastBlock().hash;
 	
 			let  newBlock = this.genesisBlock(
@@ -94,6 +94,10 @@ class BlockChain {
 			this.transaction = [];
 			this.chain.push(newBlock);
 	
+			if(!this.isChainValid()) {
+				this.chain.pop();
+				return null;
+			}
 	
 			fs.writeFileSync( "chain.json",  JSON.stringify(this) , "utf8" );
 	
@@ -274,7 +278,7 @@ class BlockChain {
 					lastAddr = transaction.recipient;
 
 					if(transaction.voteType === 'ADD') { // 투표권 부여
-						totalCnt++;
+						totalCnt += transaction.amount;
 					} else if(transaction.voteType === 'ABS') { // 기권표
 						abstenCnt++;
 					} else if(transaction.voteType === 'VOTE') { // 투표
@@ -287,13 +291,16 @@ class BlockChain {
 						}
 					} else if(transaction.voteType ==='OPP') { // 단일 투표일때 반대표
 						oppCnt++;
+						voteCnt++;
 					} else if(transaction.voteType === 'AGG') { // 단일 투표일때 찬성
 						aggCnt++;
+						voteCnt++;
 					}
 				}	
 			}
 		}
 
+		// 100.0 - (기권 / 투표)    
 		let validVoteCnt =  100.0 - ((abstenCnt / voteCnt) * 100.0);
 
 		// TODO: 찬반 동점일경우 또는 그룹1, 그룹2 투표율 같을떄 해결
@@ -302,7 +309,7 @@ class BlockChain {
 			totalCnt: totalCnt,
 			abstenCnt: abstenCnt,
 			voteCnt: voteCnt,
-			validVoteCnt: isNaN(validVoteCnt) ? 100 : validVoteCnt, // 개표율
+			validVotePercent: isNaN(validVoteCnt) ? 100 : validVoteCnt, // 개표율
 			result: null
 		}
 

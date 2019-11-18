@@ -55,7 +55,6 @@ exports.createVote = function(req, res) {
 			BlockChain.createNewTransaction(1, 'f985d60a2d9b5f135e8c5255483cb594917b4124787f4d3c2694e8ef51ff8f17',voteUserResult[i].walletAddress, voteIdx, 'ADD');
 		}
 
-
 		BlockChain.createNewBlock();
 
 		res.send({result: 'success', msg: '', voteIdx: voteIdx});

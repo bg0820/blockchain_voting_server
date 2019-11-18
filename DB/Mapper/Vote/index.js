@@ -1,6 +1,26 @@
 const pool = require('../../index');
 
 module.exports = {
+	voteIdxList: async function() {
+		let con;
+		try {
+			con = await pool.getConnection();
+		} catch(err) {
+			throw err;
+		}
+
+		try {
+			const query = 'SELECT voteIdx FROM vote;';
+			let result = await pool.query(con, query);
+			con.release();
+
+			return result;
+		} catch(err) {
+			console.log('DB Conn Error', err);
+			con.release();
+			throw err;
+		}
+	},
 	getVoteUsers: async function() {
 		let con;
 		try {

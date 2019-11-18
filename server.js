@@ -11,7 +11,6 @@ const cors = require('cors');
 // User Require
 const jConfig = require('./serverConfig.json');
 
-const BlockChain = require('./Model/BlockChain');
 
 //console.log(blockChain.proofOfWork(previousBlockHash, currentBlockData));
 
@@ -19,6 +18,9 @@ const BlockChain = require('./Model/BlockChain');
 const database = require('./DB/index.js');
 // DB 연결
 database.init();
+
+
+const BlockChain = require('./Model/BlockChain');
 
 // CORS 설정 cross 문제 해결 ajax
 app.use(cors({
